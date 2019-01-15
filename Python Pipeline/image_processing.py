@@ -2,27 +2,28 @@
 
 import sys, json, numpy as np
 import base64, cv2, argparse
-from PIL import Image
+#from PIL import Image
 import imageio, numpy as np, scipy.ndimage, matplotlib.pyplot as plt
 
-ap = argparse.ArgumentParser()
-ap.add_argument("-i", "--image", required=True, help="Input base64 image to be processed.")
-args = vars(ap.parse_args())
-global image64
-image64 = args["image"]
+##ap = argparse.ArgumentParser()
+##ap.add_argument("-i", "--image", required=True, help="Input base64 image to be processed.")
+##args = vars(ap.parse_args())
+##global image64
+##image64 = args["image"]
 
 def main():
 
 	# Decoding the base64 to a full image.
-	image_data = base64.b64decode(image64) 
-	with open("WIP.jpg", 'wb') as f:
-		f.write(image_data)
-	f.close()
+	##image_data = base64.b64decode(image64) 
+	##with open("WIP.jpg", 'wb') as f:
+	##	f.write(image_data)
+	##f.close()
 	img_path = 'WIP.jpg'
 	cv2.imshow("IMAGE", cv2.imread(img_path))
 	cv2.waitKey(0)
 	image = cv2.imread('WIP.jpg')
-	ip_pipeline1(image)
+	#ip_pipeline1(image)
+	canny(image)
 	
 
 def ip_pipeline1(image):
@@ -53,8 +54,24 @@ def ip_pipeline1(image):
 		cv2.destroyAllWindows()
 	#cv2.imshow('IMAGE', image)
 
-def ip_pipeline2(image):
+def canny(image):
+	grayscale = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+	cannied = cv2.Canny(grayscale, 100, 200)
+	cv2.imshow('Cannied', cannied)
+	k = cv2.waitKey(0)
+	if k == 27:
+		cv2.destroyAllWindows()
 
+	img, canny_contours, hierarchy = cv2.findContours(cannied, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+	stencil = np.zeros(image.shape).astype(image.dtype)
+	cv2.drawContours(stencil, canny_contours, -1, (0, 255, 0), 6)
+	cv2.imshow('Contoured Canny', stencil)
+	k = cv2.waitKey(0)
+	if k == 27:
+		cv2.destroyAllWindows()
+
+	print(canny_contours)
+	##TODO: re-process the filter on the thicker lines.
 
 if __name__ == '__main__':
 	main()
