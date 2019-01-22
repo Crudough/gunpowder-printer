@@ -1,7 +1,7 @@
 #!/use/bin/env python
 
 import sys, json, numpy as np
-import base64, cv2, argparse
+import base64, cv2, argparse, os
 #from PIL import Image
 import imageio, numpy as np, scipy.ndimage, matplotlib.pyplot as plt
 
@@ -64,13 +64,39 @@ def canny(image):
 
 	img, canny_contours, hierarchy = cv2.findContours(cannied, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 	stencil = np.zeros(image.shape).astype(image.dtype)
-	cv2.drawContours(stencil, canny_contours, -1, (0, 255, 0), 6)
-	cv2.imshow('Contoured Canny', stencil)
+	mid_image = cv2.drawContours(stencil, canny_contours, -1, (0, 255, 0), 6)
+	cv2.imshow('Intermediate', mid_image)
 	k = cv2.waitKey(0)
 	if k == 27:
 		cv2.destroyAllWindows()
 
-	print(canny_contours)
+	mid_image = cv2.cvtColor(mid_image, cv2.COLOR_RGB2GRAY)
+	#cv2.imwrite("stencil.jpg", mid_image)
+
+	final, final_contours, hierarchy = cv2.findContours(mid_image, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+
+	cv2.imshow('Final Image', final)
+	k = cv2.waitKey(0)
+	if k == 27:
+		cv2.destroyAllWindows()
+	cv2.imwrite("final.bmp", final)
+	os.system("python img-to-gcode.py final.BMP")
+
+	c = max(final_contours, key=cv2.contourArea) #max contour
+	f = open('path.svg', 'w+')
+	f.write('<svg width="'+str(100)+'" height="'+str(100)+'" xmlns="http://www.w3.org/2000/svg">')
+	f.write('<path d="M')
+
+	for i in range(len(c)):
+	    #print(c[i][0])
+	    x, y = c[i][0]
+	    print(x)
+	    f.write(str(x)+  ' ' + str(y)+' ')
+
+	f.write('"/>')
+	f.write('</svg>')
+	f.close()
+
 	##TODO: re-process the filter on the thicker lines.
 
 if __name__ == '__main__':
