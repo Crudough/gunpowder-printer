@@ -4,6 +4,9 @@ import sys, json, numpy as np
 import base64, cv2, argparse, os
 #from PIL import Image
 import imageio, numpy as np, scipy.ndimage, matplotlib.pyplot as plt
+from stl_tools import numpy2stl
+from scipy.misc import imresize
+from scipy.ndimage import gaussian_filter
 
 ##ap = argparse.ArgumentParser()
 ##ap.add_argument("-i", "--image", required=True, help="Input base64 image to be processed.")
@@ -25,38 +28,18 @@ def main():
 	#ip_pipeline1(image)
 	canny(image)
 	
+def convert():
+	A = cv2.imread('inverted_final.bmp')
+	A = A.mean(axis=2)
+	A = gaussian_filter(A.max() - A, 1.)
 
-def ip_pipeline1(image):
-	# Preprocessing/Grayscaling
-	grayscale = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-	ret, thresh = cv2.threshold(grayscale, 120, 255, cv2.THRESH_BINARY)
+	numpy2stl(A, "CONVERTED_STL.stl", scale=0.2, mask_val = 5.)
 
-	# Find Contours
-	im2, contours, hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-	contours = sorted(contours, key=cv2.contourArea, reverse=True)
-
-	# TRIAL
-	perimeters = [cv2.arcLength(contours[i],True) for i in range(len(contours))]
-	listindex=[i for i in range(25) if perimeters[i]>perimeters[0]/2]
-	numcards=len(listindex)
-	stencil = np.zeros(image.shape).astype(image.dtype)
-	cv2.drawContours(stencil, [contours[listindex[-1]]], 0, (255, 255, 255), cv2.FILLED)
-	#cv2.drawContours(image, contours, -1, (0,255,0), 3)
-
-	cv2.imshow('image', stencil)
-	k = cv2.waitKey(0)
-	if k == 27:
-		cv2.destroyAllWindows()
-
-	cv2.imshow('image', image)
-	k = cv2.waitKey(0)
-	if k == 27:
-		cv2.destroyAllWindows()
-	#cv2.imshow('IMAGE', image)
 
 def canny(image):
 	grayscale = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 	cannied = cv2.Canny(grayscale, 100, 200)
+	thresh1, inverted_canny = cv2.threshold(cannied, 127, 255, cv2.THRESH_BINARY_INV)
 	cv2.imshow('Cannied', cannied)
 	k = cv2.waitKey(0)
 	if k == 27:
@@ -74,12 +57,18 @@ def canny(image):
 	#cv2.imwrite("stencil.jpg", mid_image)
 
 	final, final_contours, hierarchy = cv2.findContours(mid_image, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+	thresh2, inverted = cv2.threshold(final, 127, 255, cv2.THRESH_BINARY_INV)
 
 	cv2.imshow('Final Image', final)
 	k = cv2.waitKey(0)
 	if k == 27:
 		cv2.destroyAllWindows()
+	cv2.imshow('Final Inverted Image', inverted)
+	k = cv2.waitKey(0)
+	if k == 27:
+		cv2.destroyAllWindows()
 	cv2.imwrite("final.bmp", final)
+	cv2.imwrite("inverted_final.bmp", inverted_canny)
 	os.system("python img-to-gcode.py final.BMP")
 
 	c = max(final_contours, key=cv2.contourArea) #max contour
@@ -96,6 +85,8 @@ def canny(image):
 	f.write('"/>')
 	f.write('</svg>')
 	f.close()
+
+	convert()
 
 	##TODO: re-process the filter on the thicker lines.
 
