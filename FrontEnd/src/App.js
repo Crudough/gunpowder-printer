@@ -35,8 +35,8 @@ class App extends Component {
 
     image.onload = function() {
       var canvas = document.createElement("canvas");
-      canvas.width = this.naturalWidth; // or 'width' if you want a special/scaled size
-      canvas.height = this.naturalHeight; // or 'height' if you want a special/scaled size
+      // canvas.width = "100px"; // or 'width' if you want a special/scaled size
+      // canvas.height = "100px"; // or 'height' if you want a special/scaled size
 
       canvas.getContext("2d").drawImage(this, 0, 0);
 
@@ -89,25 +89,29 @@ class App extends Component {
                 style={{
                   backgroundColor: "white",
                   borderRadius: 4,
-                  height: 400,
-                  width: 300,
+                  height: 200,
+                  width: 200,
                   boxShadow: "0px 2px 5px 0px rgba(0,0,0,0.5)",
-                  margin: 10
+                  margin: 10,
+                  backgroundImage: `url(${image})`,
+                  backgroundSize: "200px 200px",
+                  backgroundRepeat: "no-repeat",
+                  backgroundPosition: "center"
                 }}
               >
-                <img
+                {/* <img
                   src={image}
                   alt="preview"
-                  style={{ width: "100%", height: "90%" }}
-                />
+                  style={{ width: "100%", height: "100%" }}
+                /> */}
               </div>
               <Icon color="primary">arrow_forward_ios</Icon>
               <div
                 style={{
                   backgroundColor: "white",
                   borderRadius: 4,
-                  height: 400,
-                  width: 300,
+                  height: 200,
+                  width: 200,
                   boxShadow: "0px 2px 5px 0px rgba(0,0,0,0.5)",
                   margin: 10
                 }}
