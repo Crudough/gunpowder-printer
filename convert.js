@@ -1,6 +1,7 @@
 const express = require('express');
 const Image = require('./schema.js');
 const fs = require('fs');
+const util = require('util')
 
 exports.post_api = (req, res, next) => {
 	var {
@@ -23,19 +24,23 @@ exports.post_api = (req, res, next) => {
 
 		newImage.save();
 
-		//var spawn = require('child_process').spawn,
-		//python = spawn.('python', [''Python Pipeline'/image_processing.py']),
-		data = newImage.image64,
-		dataString = '';
-
-		//python.stdout.on('data', function(data){
-		//	dataString += data.toString();
-		//});
-		//python.stdin.end();
-
 		res.status(200).send(newImage)
 		let writeData = JSON.stringify(newImage);
 		fs.writeFileSync('exported.json', writeData);
+		var spawn = require('child_process').spawn;
+		var python = spawn('python3', ['Python\\ Pipeline/image_processing.py']);
+
+		util.log('Reading Python Feedback')
+
+		process.stdout.on('data',function(chunk){
+
+		    var textChunk = chunk.toString('utf8');// buffer to string
+
+		    util.log(textChunk);
+		});
+
+		data = newImage.image64,
+		dataString = '';
 		console.log("WE GOT HERE");
 	}
 
