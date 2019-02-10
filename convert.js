@@ -27,16 +27,10 @@ exports.post_api = (req, res, next) => {
 		res.status(200).send(newImage)
 		let writeData = JSON.stringify(newImage);
 		fs.writeFileSync('exported.json', writeData);
-		var spawn = require('child_process').spawn;
-		var python = spawn('python3', ['Python\\ Pipeline/image_processing.py']);
-
-		util.log('Reading Python Feedback')
-
-		process.stdout.on('data',function(chunk){
-
-		    var textChunk = chunk.toString('utf8');// buffer to string
-
-		    util.log(textChunk);
+		let {PythonShell} = require('python-shell')
+		PythonShell.run('image_processing.py', null, function (err) {
+			if (err) throw err;
+			console.log('Python Conversion Finished');
 		});
 
 		data = newImage.image64,
