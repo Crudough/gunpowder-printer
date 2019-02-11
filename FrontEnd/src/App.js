@@ -7,6 +7,8 @@ import Typography from "@material-ui/core/Typography";
 import IconButton from "@material-ui/core/IconButton";
 import Icon from "@material-ui/core/Icon";
 
+import axios from "axios";
+
 class App extends Component {
   constructor() {
     super();
@@ -30,22 +32,20 @@ class App extends Component {
     this.setState({ upload: true });
   };
 
-  getDataUrl = async url => {
+  getDataUrl = url => {
     const base = url.replace(/^data:image\/(png|jpg);base64,/, "");
     try {
-      let response = await fetch("http://localhost:3001/convert/image", {
-        method: "POST",
-        headers: {
-          Allow: "application/json",
-          "Contet-Type": "application/json"
-        },
-        body: JSON.stringify({
+      axios
+        .post("http://localhost:3001/convert/image", {
           image64: base
         })
-      });
-      let responseJson = await response.json();
-      console.log("RESPONSE: ", responseJson);
-      this.setState({ converted_image: response });
+        .then(response => {
+          console.log(response.data.image64);
+          this.setState({ converted_image: response.data.image64 });
+        })
+        .catch(error => {
+          console.log(error);
+        });
     } catch (error) {
       console.log(error);
     }
@@ -108,7 +108,7 @@ class App extends Component {
               <Icon color="primary">arrow_forward_ios</Icon>
               <div
                 style={{
-                  backgroundImage: this.state.converted_image,
+                  backgroundImage: `url(${this.state.converted_image})`,
                   backgroundColor: "white",
                   borderRadius: 4,
                   height: 200,
@@ -117,11 +117,11 @@ class App extends Component {
                   margin: 10
                 }}
               >
-                <img
+                {/* <img
                   src={null}
                   alt="new pic"
                   style={{ width: "100%", height: "90%" }}
-                />
+                /> */}
               </div>
             </div>
           ) : null}

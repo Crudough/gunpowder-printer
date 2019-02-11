@@ -18,12 +18,8 @@ router.post("/image", (req, res, next) => {
   newImage.save();
 
   var spawn = require("child_process").spawn,
-    python = spawn(
-      "python",
-      ["Python Pipeline/image_processing.py"],
-      (data = newImage.image64),
-      (dataString = "")
-    );
+    python = spawn("python", ["Python Pipeline/image_processing.py"]);
+  (data = newImage.image64), (dataString = "");
 
   python.stdout.on("data", function(data) {
     dataString += data.toString();
