@@ -19,10 +19,9 @@ class App extends Component {
   }
 
   handleChange = event => {
-    console.log(event.target.files);
     let reader = new FileReader();
     reader.onload = e => {
-      console.log(e.target.result);
+      this.getDataUrl(e.target.result);
       this.setState({ image: e.target.result });
     };
     if (event.target.files.length > 0)
@@ -31,35 +30,25 @@ class App extends Component {
     this.setState({ upload: true });
   };
 
-  getDataUri = async (url, callback) => {
-    var image = new Image();
-
-    image.onload = function() {
-      var canvas = document.createElement("canvas");
-      // canvas.width = "100px"; // or 'width' if you want a special/scaled size
-      // canvas.height = "100px"; // or 'height' if you want a special/scaled size
-
-      canvas.getContext("2d").drawImage(this, 0, 0);
-
-      // Get raw image data
-      callback(
-        canvas
-          .toDataURL("image/png")
-          .replace(/^data:image\/(png|jpg);base64,/, "")
-      );
-    };
-
-    image.src = url;
-    let backend_image = await fetch("/convert", {
-      method: "post",
-      headers: { "Contet-Type": "application/json" },
-      body: JSON.stringify({
-        image64: image
-      })
-    });
-    let response = await backend_image.json();
-    console.log(response);
-    this.setState({ converted_image: response });
+  getDataUrl = async url => {
+    const base = url.replace(/^data:image\/(png|jpg);base64,/, "");
+    try {
+      let response = await fetch("http://localhost:3001/convert/image", {
+        method: "POST",
+        headers: {
+          Allow: "application/json",
+          "Contet-Type": "application/json"
+        },
+        body: JSON.stringify({
+          image64: base
+        })
+      });
+      let responseJson = await response.json();
+      console.log("RESPONSE: ", responseJson);
+      this.setState({ converted_image: response });
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   render() {
