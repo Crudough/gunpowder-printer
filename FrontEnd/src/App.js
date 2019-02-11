@@ -13,7 +13,8 @@ class App extends Component {
     this.state = {
       upload: false,
       connected: false,
-      image: null
+      image: null,
+      converted_image: null
     };
   }
 
@@ -30,7 +31,7 @@ class App extends Component {
     this.setState({ upload: true });
   };
 
-  getDataUri = (url, callback) => {
+  getDataUri = async (url, callback) => {
     var image = new Image();
 
     image.onload = function() {
@@ -49,6 +50,16 @@ class App extends Component {
     };
 
     image.src = url;
+    let backend_image = await fetch("/convert", {
+      method: "post",
+      headers: { "Contet-Type": "application/json" },
+      body: JSON.stringify({
+        image64: image
+      })
+    });
+    let response = await backend_image.json();
+    console.log(response);
+    this.setState({ converted_image: response });
   };
 
   render() {
@@ -108,6 +119,7 @@ class App extends Component {
               <Icon color="primary">arrow_forward_ios</Icon>
               <div
                 style={{
+                  backgroundImage: this.state.converted_image,
                   backgroundColor: "white",
                   borderRadius: 4,
                   height: 200,
