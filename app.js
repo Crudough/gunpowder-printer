@@ -9,7 +9,25 @@ const cors = require("cors");
 // Initialize the App.
 const app = express();
 
-// app.use(cors());
+app.use(cors());
+
+app.use((res, req, next) => {
+  res.header("Access-Control-All-Origin", "*");
+  res.header(
+    "Access-Control-Methods",
+    "PUT",
+    "POST",
+    "GET",
+    "PATCH",
+    "DELETE",
+    "OPTIONS"
+  );
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Origin, X-Requested_with, Content-Type, Accept, Authorization"
+  );
+  next();
+});
 
 //Initialize Database
 var mongoConnection = {

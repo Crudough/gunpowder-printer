@@ -20,7 +20,6 @@ class App extends Component {
   }
 
   handleChange = event => {
-    console.log(event.target.files);
     let reader = new FileReader();
     reader.onload = e => {
       this.getDataUrl(e.target.result);
@@ -36,12 +35,12 @@ class App extends Component {
     const base = url.replace(/^data:image\/(png|jpg);base64,/, "");
     try {
       axios
-        .post("/convert", {
+        .post("http://localhost:3001/convert", {
           image64: base
         })
         .then(response => {
-          console.log(response.data.image64);
-          this.setState({ converted_image: response.data.image64 });
+          console.log(response);
+          this.setState({ converted_image: response });
         })
         .catch(error => {
           console.log(error);
@@ -108,7 +107,7 @@ class App extends Component {
               <Icon color="primary">arrow_forward_ios</Icon>
               <div
                 style={{
-                  backgroundImage: this.state.converted_image,
+                  // backgroundImage: `url(${this.state.converted_image})`,
                   backgroundColor: "white",
                   borderRadius: 4,
                   height: 200,
@@ -118,7 +117,7 @@ class App extends Component {
                 }}
               >
                 <img
-                  src={null}
+                  src={this.state.converted_image}
                   alt="new pic"
                   style={{ width: "100%", height: "90%" }}
                 />
