@@ -29,7 +29,8 @@ def convert():
     # Converting the processed image to an STL file.
     numpy2stl(A, "CONVERTED_STL.stl", scale=0.2, mask_val = 5.)
     # Converting STL file to G-Code representation.
-    os.system("slic3r CONVERTED_STL.stl")
+    os.system("potrace inverted_final.bmp")
+    os.system("slic3r CONVERTED_STL.stl --gcode-comments --skirts 0")
         
 def canny(image):
 
