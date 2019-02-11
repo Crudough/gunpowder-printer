@@ -4,9 +4,12 @@ const expressValidator = require("express-validator");
 const convert = require("./convert.js");
 const mongo = require("mongodb");
 const mongoose = require("mongoose");
+const cors = require("cors");
 
 // Initialize the App.
 const app = express();
+
+// app.use(cors());
 
 //Initialize Database
 var mongoConnection = {
@@ -47,12 +50,12 @@ app.use(
 //localhost:3000/
 
 //GET and POST Requests
-app.get("/", (req, res) => res.send("Hello World!"));
+// app.get("/", (req, res) => res.send("Hello World!"));
 app.post("/convert", convert.post_api);
 app.get("/get_images", convert.get_all_api);
 
 //Port setup.
-app.set("port", process.env.PORT || 3000);
+app.set("port", process.env.PORT || 3001);
 
 //Open ears
 app.listen(app.get("port"), function() {

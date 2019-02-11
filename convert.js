@@ -2,10 +2,10 @@ const express = require("express");
 const Image = require("./schema.js");
 
 exports.post_api = (req, res, next) => {
-  var { image64, timesent } = req.body;
+  var { image64 } = req.body;
 
-  req.checkBody("image64", "Please select an image.").notEmpty();
-  req.checkBody("timesent", "Invalid time code receieved.").isNumeric();
+  // req.checkBody("image64", "Please select an image.").notEmpty();
+  // req.checkBody("timesent", "Invalid time code receieved.").isNumeric();
   //req.checkBody('timesent', 'No time code received.').isEmpty();
   var errors = req.validationErrors();
   if (errors) {
@@ -13,7 +13,7 @@ exports.post_api = (req, res, next) => {
   } else {
     var newImage = new Image({
       image64: image64,
-      timesent: timesent
+      timesent: new Date().getTime()
     });
 
     newImage.save();

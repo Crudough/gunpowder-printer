@@ -6,6 +6,7 @@ import Toolbar from "@material-ui/core/Toolbar";
 import Typography from "@material-ui/core/Typography";
 import IconButton from "@material-ui/core/IconButton";
 import Icon from "@material-ui/core/Icon";
+import axios from "axios";
 
 class App extends Component {
   constructor() {
@@ -22,7 +23,7 @@ class App extends Component {
     console.log(event.target.files);
     let reader = new FileReader();
     reader.onload = e => {
-      console.log(e.target.result);
+      this.getDataUrl(e.target.result);
       this.setState({ image: e.target.result });
     };
     if (event.target.files.length > 0)
@@ -31,35 +32,23 @@ class App extends Component {
     this.setState({ upload: true });
   };
 
-  getDataUri = async (url, callback) => {
-    var image = new Image();
-
-    image.onload = function() {
-      var canvas = document.createElement("canvas");
-      // canvas.width = "100px"; // or 'width' if you want a special/scaled size
-      // canvas.height = "100px"; // or 'height' if you want a special/scaled size
-
-      canvas.getContext("2d").drawImage(this, 0, 0);
-
-      // Get raw image data
-      callback(
-        canvas
-          .toDataURL("image/png")
-          .replace(/^data:image\/(png|jpg);base64,/, "")
-      );
-    };
-
-    image.src = url;
-    let backend_image = await fetch("/convert", {
-      method: "post",
-      headers: { "Contet-Type": "application/json" },
-      body: JSON.stringify({
-        image64: image
-      })
-    });
-    let response = await backend_image.json();
-    console.log(response);
-    this.setState({ converted_image: response });
+  getDataUrl = url => {
+    const base = url.replace(/^data:image\/(png|jpg);base64,/, "");
+    try {
+      axios
+        .post("/convert", {
+          image64: base
+        })
+        .then(response => {
+          console.log(response.data.image64);
+          this.setState({ converted_image: response.data.image64 });
+        })
+        .catch(error => {
+          console.log(error);
+        });
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   render() {
