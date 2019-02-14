@@ -7,6 +7,7 @@ import Typography from "@material-ui/core/Typography";
 //import IconButton from "@material-ui/core/IconButton";
 import Icon from "@material-ui/core/Icon";
 import axios from "axios";
+import Snackbar from "@material-ui/core/Snackbar";
 
 class App extends Component {
   constructor() {
@@ -15,7 +16,8 @@ class App extends Component {
       upload: false,
       //connected: false,
       image: null,
-      converted_image: null
+      converted_image: null,
+      open: false
     };
   }
 
@@ -77,6 +79,12 @@ class App extends Component {
         .then(response => {
           console.log(response);
           this.setState({ converted_image: response });
+          this.setState({
+            open: true
+          });
+          setTimeout(() => {
+            this.setState({ open: false });
+          }, 3000);
         })
         .catch(error => {
           console.log(error);
@@ -207,6 +215,15 @@ class App extends Component {
                 <Icon style={{ marginLeft: 10 }}> print</Icon>
               </Button>
             ) : null} */}
+            <Snackbar
+              anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+              open={this.state.open}
+              onClose={() => this.setState({ open: false })}
+              ContentProps={{
+                "aria-describedby": "message-id"
+              }}
+              message={<span id="message-id">Upload Successful!</span>}
+            />
           </div>
         </header>
       </div>
